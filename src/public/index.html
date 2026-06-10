@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ thống Quản trị Cập nhật OTA - STI Vietnam</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #04111F;
+      --panel: #0C1B2D;
+      --subpanel: #10263D;
+      --recessed: #04101C;
+      --border: #173454;
+      --border-strong: #2B5B89;
+      --text: #F5F7FA;
+      --text-secondary: #B5C5DE;
+      --text-muted: #7F92AF;
+      --primary: #12A4FF;
+      --primary-strong: #45D9FF;
+      --primary-surface: rgba(18, 164, 255, 0.12);
+      --running: #17F081;
+      --running-surface: rgba(23, 240, 129, 0.12);
+      --warning: #FF950D;
+      --fault: #FF4D5E;
+      --fault-surface: rgba(255, 77, 94, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    header {
+      background-color: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text);
+    }
+
+    .logo-badge {
+      background-color: var(--primary-surface);
+      color: var(--primary-strong);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--primary);
+    }
+
+    .server-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background-color: var(--running);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--running);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 40px auto;
+      padding: 0 40px;
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 32px;
+    }
+
+    .card {
+      background-color: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      color: var(--primary-strong);
+    }
+
+    /* Table styles */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    tr:hover td {
+      color: var(--text);
+      background-color: rgba(255, 255, 255, 0.015);
+    }
+
+    .machine-badge {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .version-tag {
+      background-color: var(--subpanel);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--primary-strong);
+      border: 1px solid var(--border);
+    }
+
+    .link-btn {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .link-btn:hover {
+      text-decoration: underline;
+      color: var(--primary-strong);
+    }
+
+    /* Form Styles */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    select,
+    textarea {
+      background-color: var(--recessed);
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .file-drop-area {
+      border: 2px dashed var(--border-strong);
+      border-radius: 6px;
+      padding: 24px;
+      text-align: center;
+      background-color: var(--recessed);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .file-drop-area:hover,
+    .file-drop-area.dragover {
+      border-color: var(--primary);
+      background-color: var(--primary-surface);
+    }
+
+    .file-drop-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .file-drop-text strong {
+      color: var(--primary);
+    }
+
+    input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-selected-info {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--running);
+      font-weight: 500;
+      display: none;
+    }
+
+    button[type="submit"] {
+      background-color: var(--primary);
+      border: none;
+      color: var(--bg);
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      transition: background-color 0.2s;
+    }
+
+    button[type="submit"]:hover {
+      background-color: var(--primary-strong);
+    }
+
+    /* Progress bar */
+    .progress-wrapper {
+      background-color: var(--recessed);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .progress-bar {
+      height: 8px;
+      background-color: var(--subpanel);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--running);
+      border-radius: 4px;
+      transition: width 0.1s;
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 14px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .alert-success {
+      background-color: var(--running-surface);
+      color: var(--running);
+      border: 1px solid var(--running);
+    }
+
+    .alert-error {
+      background-color: var(--fault-surface);
+      color: var(--fault);
+      border: 1px solid var(--fault);
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+      background-color: var(--panel);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-container">
+      <div class="logo-text">STI VIETNAM</div>
+      <div class="logo-badge">PORTAL OTA</div>
+    </div>
+    <div class="server-status">
+      <div class="status-dot"></div>
+      <div>Hệ thống trực tuyến</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Bảng danh sách dòng máy -->
+    <div class="card">
+      <h2 class="card-title">Danh sách dòng máy & Phiên bản cập nhật</h2>
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Tên dòng máy (ID)</th>
+              <th>Phiên bản</th>
+              <th>Mã Code</th>
+              <th>Thời gian cập nhật</th>
+              <th>Liên kết</th>
+            </tr>
+          </thead>
+          <tbody id="machines-list">
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--text-muted);">Đang tải dữ liệu...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Form tải lên cập nhật mới -->
+    <div class="card">
+      <h2 class="card-title">Tải lên Bản cập nhật mới</h2>
+
+      <div class="alert alert-success" id="alert-success">Cập nhật thành công!</div>
+      <div class="alert alert-error" id="alert-error">Lỗi upload file.</div>
+
+      <form id="upload-form">
+        <div class="form-group">
+          <label for="machineId">Dòng máy (ID cập nhật)</label>
+          <select id="machineId" required>
+            <option value="gear-lathe-feeder">Lathe Feeder (gear-lathe-feeder)</option>
+            <option value="gear-post-heat-feeder">Post Heat Feeder (gear-post-heat-feeder)</option>
+            <option value="new-machine">-- Thêm dòng máy mới --</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="new-machine-group" style="display: none;">
+          <label for="newMachineId">Mã dòng máy mới (Ví dụ: gear-new-feeder)</label>
+          <input type="text" id="newMachineId" placeholder="Nhập id viết liền, không dấu, không khoảng trắng">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="versionName">Số phiên bản (Version Name)</label>
+            <input type="text" id="versionName" placeholder="Ví dụ: 0.1.1" required>
+          </div>
+          <div class="form-group">
+            <label for="versionCode">Mã phiên bản (Version Code)</label>
+            <input type="number" id="versionCode" placeholder="Ví dụ: 2" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="changelog">Nhật ký thay đổi (Changelog)</label>
+          <textarea id="changelog" rows="4" placeholder="Mô tả các chỉnh sửa trong phiên bản này..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>File ứng dụng APK</label>
+          <div class="file-drop-area" id="drop-area">
+            <div class="file-drop-text">Kéo thả file APK vào đây hoặc <strong>chọn file</strong></div>
+            <input type="file" id="apkFile" accept=".apk" required>
+          </div>
+          <div class="file-selected-info" id="file-info">Tên file đã chọn</div>
+        </div>
+
+        <div class="form-group">
+          <label for="adminPassword">Mật khẩu xác thực Admin</label>
+          <input type="password" id="adminPassword" placeholder="Nhập mật khẩu để xác nhận upload" required>
+        </div>
+
+        <button type="submit" id="submit-btn">Tải lên & Phát hành cập nhật</button>
+
+        <div class="progress-wrapper" id="progress-wrapper">
+          <div class="progress-info">
+            <span id="progress-status">Đang tải lên...</span>
+            <span id="progress-percent">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2026 STI Vietnam. Tất cả quyền được bảo lưu. Portal Quản trị OTA v1.0.0.
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
