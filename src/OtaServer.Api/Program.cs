@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using OtaServer.Api.Data;
 
@@ -43,8 +44,18 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 
 // Serve React SPA Static Files from wwwroot
+// Thêm MIME types cho file mobile app (.apk, .ipa) vì ASP.NET không có sẵn
+var mimeProvider = new FileExtensionContentTypeProvider();
+mimeProvider.Mappings[".apk"] = "application/vnd.android.package-archive";
+mimeProvider.Mappings[".ipa"] = "application/octet-stream";
+
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    ContentTypeProvider = mimeProvider,
+    ServeUnknownFileTypes = true,  // Fallback: serve bất kỳ file nào nếu không biết MIME
+    DefaultContentType = "application/octet-stream"
+});
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

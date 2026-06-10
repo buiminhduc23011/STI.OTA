@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OtaServer.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+76e3706fe8abe259efe5eb3005b8374cc5d13908")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+141cf7e270a2e457dc2fb045dcb3388f9c2ba2c8")]
 [assembly: System.Reflection.AssemblyProductAttribute("OtaServer.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OtaServer.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -67,12 +67,24 @@ dotnet publish src/OtaServer.Api/OtaServer.Api.csproj -c Release -r linux-x64 --
 if ($LASTEXITCODE -ne 0) { Write-Host "[LOI] Publish .NET that bai!" -ForegroundColor Red; Exit 1 }
 Write-Host "[OK] Build & Publish thanh cong." -ForegroundColor Green
 
-# Step 3: Copy len server
+# Step 3: Copy len server (bao ve thu muc uploads/ chua APK da upload)
 Write-Host "`n[3/5] Dang sao chep file len server (SCP)..." -ForegroundColor Cyan
 ssh  -o StrictHostKeyChecking=no "$USER@$IP" "mkdir -p $REMOTE_DIR"
 scp  -o StrictHostKeyChecking=no -r dist/linux-x64/* "${USER}@${IP}:${REMOTE_DIR}/"
 if ($LASTEXITCODE -ne 0) { Write-Host "[LOI] SCP that bai!" -ForegroundColor Red; Exit 1 }
-Write-Host "[OK] Da copy xong toan bo file." -ForegroundColor Green
+
+# Khoi phuc thu muc uploads tu backup
+Write-Host "  [*] Khoi phuc thu muc uploads..." -ForegroundColor Yellow
+ssh -o StrictHostKeyChecking=no "$USER@$IP" @"
+  if [ -d /tmp/ota_uploads_backup ]; then
+    mkdir -p $REMOTE_DIR/wwwroot/uploads
+    cp -rn /tmp/ota_uploads_backup/. $REMOTE_DIR/wwwroot/uploads/
+    rm -rf /tmp/ota_uploads_backup
+    echo '[OK] Da khoi phuc uploads thanh cong.'
+  fi
+"@
+
+Write-Host "[OK] Da copy xong toan bo file (uploads duoc bao toan)." -ForegroundColor Green
 
 # Step 4: Cau hinh Systemd service
 Write-Host "`n[4/5] Dang cap nhat Systemd service..." -ForegroundColor Cyan
