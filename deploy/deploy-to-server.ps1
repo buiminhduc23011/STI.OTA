@@ -70,6 +70,19 @@ Write-Host "[OK] Build & Publish thanh cong." -ForegroundColor Green
 # Step 3: Copy len server (bao ve thu muc uploads/ chua APK da upload)
 Write-Host "`n[3/5] Dang sao chep file len server (SCP)..." -ForegroundColor Cyan
 ssh  -o StrictHostKeyChecking=no "$USER@$IP" "mkdir -p $REMOTE_DIR"
+
+# Backup thu muc uploads tren server truoc khi ghi de
+Write-Host "  [*] Backup thu muc uploads tren server..." -ForegroundColor Yellow
+ssh -o StrictHostKeyChecking=no "$USER@$IP" @"
+  if [ -d $REMOTE_DIR/wwwroot/uploads ]; then
+    cp -r $REMOTE_DIR/wwwroot/uploads /tmp/ota_uploads_backup
+    echo '[OK] Da backup uploads.'
+  else
+    echo '[INFO] Chua co thu muc uploads, bo qua backup.'
+  fi
+"@
+
+# SCP toan bo binary + wwwroot moi (chua APK cu bi xoa)
 scp  -o StrictHostKeyChecking=no -r dist/linux-x64/* "${USER}@${IP}:${REMOTE_DIR}/"
 if ($LASTEXITCODE -ne 0) { Write-Host "[LOI] SCP that bai!" -ForegroundColor Red; Exit 1 }
 
